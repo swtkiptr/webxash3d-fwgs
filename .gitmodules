@@ -1,0 +1,6 @@
+[submodule "xash3d-fwgs"]
+	path = xash3d-fwgs
+	url = git@github.com:yohimik/xash3d-fwgs.git
+[submodule "hlsdk-portable"]
+	path = hlsdk-portable
+	url = git@github.com:yohimik/hlsdk-portable.git
