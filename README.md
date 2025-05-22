@@ -9,7 +9,6 @@ This project is an [Emscripten](https://emscripten.org/)-based web port of [Xash
 ```bash
 git clone --recurse-submodules https://github.com/yohimik/webxash3d-fwgs.git
 cd webxash3d-fwgs
-git submodule update --init --recursive
 ```
 
 ## Game Content
