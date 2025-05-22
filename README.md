@@ -19,7 +19,7 @@ You must provide your own game files (e.g., from Steam):
 steamcmd +login your_steam_username +force_install_dir ./hl +app_update 70 validate +quit
 ```
 
-Zip and and copy the `valve` folder from your Half-Life installation into the `web/public/valve.zip`.
+Zip and and copy the `valve` folder from your Half-Life installation into the `public/valve.zip`.
 Note: zip contents should be like this:
 ```shell
 /valve.zip
