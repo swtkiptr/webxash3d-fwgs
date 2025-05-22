@@ -27,7 +27,6 @@ COPY patches patches
 RUN sed -e '/var Module = typeof Module != '\''undefined'\'' ? Module : {};/{r patches/head.js' -e 'd}' -i build/engine/index.js
 RUN sed -e '/filename = PATH.normalize(filename);/{r patches/filename.js' -e 'd}' -i build/engine/index.js
 RUN sed -e 's/run();//g' -i build/engine/index.js
-RUN sed -e 's/var mouseEventHandlerFunc = (e = event) => {/var mouseEventHandlerFunc = (e = event) => {return/g' -i build/engine/index.js
 RUN sed -e '/preInit();/{r patches/init.js' -e 'd}' -i build/engine/index.js
 RUN sed -e 's/async type="text\/javascript"/defer type="module"/' -i build/engine/index.html
 
