@@ -2,5 +2,7 @@ services:
     xash:
         build: .
         restart: always
+        volumes:
+            - "./public:/usr/share/nginx/html/public"
         ports:
             - "8080:80"

@@ -15,7 +15,7 @@ async function start() {
 	await FS.mkdir('/rodir')
 	await FS.mkdir('/xash')
 
-	const res = await fetch('valve.zip')
+	const res = await fetch('/public/valve.zip')
 	await mountZipToFS(await res.arrayBuffer())
 
 	preInit();
