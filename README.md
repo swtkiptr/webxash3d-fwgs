@@ -35,3 +35,13 @@ docker compose up -d
 ```
 
 Navigate in your browser to `http://localhost:8080`
+
+# TODO
+
+## Mouse Crashes
+
+The game crashes when capturing the mouse input (without `-noenginemouse`).
+
+## RAM optimization
+
+Reduce current stack size to min.

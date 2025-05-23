@@ -8,6 +8,5 @@ Module.dynamicLibraries = [
 	"server.wasm",
 	"client.wasm",
 ]
-Module.arguments = ['-windowed']
-Module['INITIAL_MEMORY'] = 16777216 * 8
+Module.arguments = ['-windowed', '-noenginemouse']
 Module['canvas'] = document.getElementById('canvas')
