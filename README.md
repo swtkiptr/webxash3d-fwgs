@@ -45,3 +45,7 @@ The game crashes when capturing the mouse input (without `-noenginemouse`).
 ## RAM optimization
 
 Reduce current stack size to min.
+
+## WebGL?
+
+Replace software rendering with WebGL.
