@@ -15,7 +15,7 @@ cd webxash3d-fwgs
 
 You must provide your own game files (e.g., from Steam):
 ```shell
-steamcmd +login your_steam_username +force_install_dir ./hl +app_update 70 validate +quit
+steamcmd +force_install_dir ./hl +login your_steam_username +app_update 70 validate +quit
 ```
 
 Zip and and copy the `valve` folder from your Half-Life installation into the `public/valve.zip`.
