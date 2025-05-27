@@ -4,3 +4,6 @@
 [submodule "hlsdk-portable"]
 	path = hlsdk-portable
 	url = git@github.com:yohimik/hlsdk-portable.git
+[submodule "cs16-client"]
+	path = cs16-client
+	url = git@github.com:yohimik/cs16-client.git
