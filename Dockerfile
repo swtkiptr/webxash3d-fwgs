@@ -49,17 +49,17 @@ CMD ["emrun", "--no_browser", "--port", "8080", "."]
 
 FROM nginx:alpine3.21 AS server
 
-COPY --from=hlsdk /hlsdk-portable/build/dlls/hl_emscripten_javascript.so /usr/share/nginx/html/server.wasm
 COPY --from=hlsdk /hlsdk-portable/build/cl_dll/client_emscripten_javascript.so /usr/share/nginx/html/client.wasm
+COPY --from=hlsdk /hlsdk-portable/build/dlls/hl_emscripten_javascript.so /usr/share/nginx/html/server.wasm
+COPY --from=engine /xash3d-fwgs/build/3rdparty/mainui/libmenu.so /usr/share/nginx/html/menu
 COPY --from=engine /xash3d-fwgs/build/engine/index.html /usr/share/nginx/html/index.html
 COPY --from=engine /xash3d-fwgs/build/engine/index.js /usr/share/nginx/html/index.js
 COPY --from=engine /xash3d-fwgs/build/engine/index.wasm /usr/share/nginx/html/index.wasm
 COPY --from=engine /xash3d-fwgs/build/filesystem/filesystem_stdio.so /usr/share/nginx/html/filesystem_stdio
 COPY --from=engine /xash3d-fwgs/build/ref/gl/libref_gl.so /usr/share/nginx/html/ref_gl.so
 COPY --from=engine /xash3d-fwgs/build/ref/soft/libref_soft.so /usr/share/nginx/html/ref_soft.so
-COPY --from=engine /xash3d-fwgs/build/3rdparty/mainui/libmenu.so /usr/share/nginx/html/menu
-#COPY --from=cs /cs/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
 #COPY --from=cs /cs/build/3rdparty/mainui_cpp/menu_emscripten_javascript.wasm /usr/share/nginx/html/menu
+#COPY --from=cs /cs/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
 #COPY --from=cs /cs/build/3rdparty/ReGameDLL_CS/regamedll/cs_emscripten_javascript.wasm /usr/share/nginx/html/server.wasm
 
 EXPOSE 80
