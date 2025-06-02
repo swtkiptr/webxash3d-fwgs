@@ -8,5 +8,5 @@ Module.dynamicLibraries = [
 	"server.wasm",
 	"client.wasm",
 ]
-Module.arguments = ['-windowed', '-noenginemouse']
+Module.arguments = ['-windowed']
 Module['canvas'] = document.getElementById('canvas')

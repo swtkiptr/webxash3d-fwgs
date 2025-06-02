@@ -38,10 +38,6 @@ Navigate in your browser to `http://localhost:8080`
 
 # TODO
 
-## Mouse Crashes
-
-The game crashes when capturing the mouse input (without `-noenginemouse`).
-
 ## Counter-Strike 1.6
 
 Port Counter-Strike 1.6.
