@@ -46,10 +46,10 @@ Port Counter-Strike 1.6.
 
 Reduce current stack size to min.
 
-## WebGL
-
-Replace software rendering with WebGL.
-
 ## NPM
 
 Fix all issues above and publish `xash3d-fwgs` npm package.
+
+## WebGL improves (potentially)
+
+Support GLES3Compat batching and fix `Vertex buffer is not big enough for the draw call.Understand this warning` warning.

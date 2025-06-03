@@ -20,11 +20,11 @@ ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 WORKDIR /xash3d-fwgs
 COPY xash3d-fwgs .
 ENV EMCC_CFLAGS="-s USE_SDL=2"
-RUN emconfigure ./waf configure --enable-stbtt && \
+RUN EMSCRIPTEN=true emconfigure ./waf configure --enable-stbtt --enable-emscripten && \
 	emmake ./waf build
 
 COPY patches patches
-RUN sed -e '/var Module = typeof Module != '\''undefined'\'' ? Module : {};/{r patches/head.js' -e 'd}' -i build/engine/index.js
+RUN sed -e '/var Module = typeof Module != "undefined" ? Module : {};/{r patches/head.js' -e 'd}' -i build/engine/index.js
 RUN sed -e '/filename = PATH.normalize(filename);/{r patches/filename.js' -e 'd}' -i build/engine/index.js
 RUN sed -e 's/run();//g' -i build/engine/index.js
 RUN sed -e '/preInit();/{r patches/init.js' -e 'd}' -i build/engine/index.js
@@ -56,7 +56,7 @@ COPY --from=engine /xash3d-fwgs/build/engine/index.html /usr/share/nginx/html/in
 COPY --from=engine /xash3d-fwgs/build/engine/index.js /usr/share/nginx/html/index.js
 COPY --from=engine /xash3d-fwgs/build/engine/index.wasm /usr/share/nginx/html/index.wasm
 COPY --from=engine /xash3d-fwgs/build/filesystem/filesystem_stdio.so /usr/share/nginx/html/filesystem_stdio
-COPY --from=engine /xash3d-fwgs/build/ref/gl/libref_gl.so /usr/share/nginx/html/ref_gl.so
+COPY --from=engine /xash3d-fwgs/build/ref/gl/libref_gles3compat.so /usr/share/nginx/html/ref_gles3compat.so
 COPY --from=engine /xash3d-fwgs/build/ref/soft/libref_soft.so /usr/share/nginx/html/ref_soft.so
 #COPY --from=cs /cs/build/3rdparty/mainui_cpp/menu_emscripten_javascript.wasm /usr/share/nginx/html/menu
 #COPY --from=cs /cs/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
