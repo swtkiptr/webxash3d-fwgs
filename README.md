@@ -38,10 +38,6 @@ Navigate in your browser to `http://localhost:8080`
 
 # TODO
 
-## Counter-Strike 1.6
-
-Port Counter-Strike 1.6.
-
 ## RAM optimization
 
 Reduce current stack size to min.
@@ -53,3 +49,7 @@ Fix all issues above and publish `xash3d-fwgs` npm package.
 ## WebGL improves (potentially)
 
 Support GLES3Compat batching and fix `Vertex buffer is not big enough for the draw call.Understand this warning` warning.
+
+## Scripts (potentially)
+
+Some scripts stop working after saving and loading (eg. the guard doesn't open the train door).
