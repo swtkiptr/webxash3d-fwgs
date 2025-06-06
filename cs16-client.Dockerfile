@@ -1,7 +1,11 @@
 FROM emscripten/emsdk:4.0.9 AS engine
 
 RUN dpkg --add-architecture i386
-RUN apt update && apt upgrade -y && apt -y --no-install-recommends install aptitude
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get -y --no-install-recommends install aptitude
 RUN aptitude -y --without-recommends install git ca-certificates build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libfreetype-dev:i386 libopus-dev:i386 libbz2-dev:i386 libvorbis-dev:i386 libopusfile-dev:i386 libogg-dev:i386
 ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 
@@ -23,7 +27,11 @@ RUN sed -e 's/async type="text\/javascript"/defer type="module"/' -i build/engin
 FROM emscripten/emsdk:4.0.9 AS cs
 
 RUN dpkg --add-architecture i386
-RUN apt update && apt upgrade -y && apt -y --no-install-recommends install aptitude
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get -y --no-install-recommends install aptitude
 RUN aptitude -y --without-recommends install git ca-certificates build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libfreetype-dev:i386 libopus-dev:i386 libbz2-dev:i386 libvorbis-dev:i386 libopusfile-dev:i386 libogg-dev:i386
 ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 
