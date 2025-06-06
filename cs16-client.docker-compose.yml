@@ -1,0 +1,10 @@
+services:
+    cs16-client:
+        build:
+            context: .
+            dockerfile: cs16-client.Dockerfile
+        restart: always
+        volumes:
+            - "./public:/usr/share/nginx/html/public"
+        ports:
+            - "8081:80"

@@ -30,11 +30,42 @@ Note: zip contents should be like this:
 
 ## Compile and run
 
+### hlsdk
+
 ```shell
-docker compose up -d
+docker compose -f hlsdk.docker-compose.yml up -d
 ```
 
 Navigate in your browser to `http://localhost:8080`
+
+<details>
+  <summary>Screenshots (black frames - mac book camera, blue frames - browser active outline)</summary>
+
+![hlsdk screenshot 0](./screenshots/hlsdk0.png)
+![hlsdk screenshot 1](./screenshots/hlsdk1.png)
+![hlsdk screenshot 2](./screenshots/hlsdk2.png)
+![hlsdk screenshot 3](./screenshots/hlsdk3.png)
+![hlsdk screenshot 4](./screenshots/hlsdk4.png)
+
+</details>
+
+### cs16-client
+
+```shell
+docker compose -f cs16-client.docker-compose.yml up -d
+```
+
+Navigate in your browser to `http://localhost:8081`
+
+<details>
+  <summary>Screenshots (black frames - mac book camera, blue frames - browser active outline)</summary>
+
+![cs16-client screenshot 0](./screenshots/cs16-client0.png)
+![cs16-client screenshot 1](./screenshots/cs16-client1.png)
+![cs16-client screenshot 2](./screenshots/cs16-client2.png)
+![cs16-client screenshot 3](./screenshots/cs16-client3.png)
+
+</details>
 
 # TODO
 

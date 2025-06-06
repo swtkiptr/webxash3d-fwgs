@@ -1,6 +1,8 @@
 services:
-    xash:
-        build: .
+    hlsdk:
+        build:
+            context: .
+            dockerfile: hlsdk.Dockerfile
         restart: always
         volumes:
             - "./public:/usr/share/nginx/html/public"

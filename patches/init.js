@@ -17,6 +17,7 @@ async function start() {
 
 	const res = await fetch('/public/valve.zip')
 	await mountZipToFS(await res.arrayBuffer())
+	await FS.chdir('/xash')
 
 	preInit();
 	run();
