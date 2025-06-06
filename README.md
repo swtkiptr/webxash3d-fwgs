@@ -23,6 +23,9 @@ Note: zip contents should be like this:
 ```shell
 /valve.zip
 └── valve                  
+├ ├── file1           
+├ └── file2...  
+└── cstrike                  
   ├── file1           
   └── file2...  
 ```
