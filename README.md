@@ -22,12 +22,12 @@ Zip and and copy the `valve` folder from your Half-Life installation into the `p
 Note: zip contents should be like this:
 ```shell
 /valve.zip
-├─┬ valve                  
-│ ├── file1           
-│ └── file2...  
-└─┬ cstrike                  
-  ├── file1           
-  └── file2...  
+├──┬/valve                  
+│  ├───/file1           
+│  └───/file2...  
+└──┬/cstrike                  
+   ├───/file1           
+   └───/file2...  
 ```
 
 
