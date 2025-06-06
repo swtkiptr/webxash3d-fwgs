@@ -1,7 +1,10 @@
 FROM emscripten/emsdk:4.0.9 AS engine
 
 RUN dpkg --add-architecture i386
-RUN apt-get clean && \
+RUN mkdir -p /etc/apt/apt.conf.d/ && \
+    echo 'APT::Update::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' > /etc/apt/apt.conf.d/docker-clean && \
+    echo 'DPkg::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' >> /etc/apt/apt.conf.d/docker-clean && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -27,7 +30,10 @@ RUN sed -e 's/async type="text\/javascript"/defer type="module"/' -i build/engin
 FROM emscripten/emsdk:4.0.9 AS cs
 
 RUN dpkg --add-architecture i386
-RUN apt-get clean && \
+RUN mkdir -p /etc/apt/apt.conf.d/ && \
+    echo 'APT::Update::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' > /etc/apt/apt.conf.d/docker-clean && \
+    echo 'DPkg::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' >> /etc/apt/apt.conf.d/docker-clean && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get update && \
     apt-get upgrade -y && \
