@@ -70,6 +70,12 @@ Navigate in your browser to `http://localhost:8081`
 
 </details>
 
+### tf15-client
+
+```shell
+docker compose -f tf15-client.docker-compose.yml up -d
+```
+
 # TODO
 
 ## RAM optimization

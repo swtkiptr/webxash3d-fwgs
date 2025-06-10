@@ -7,3 +7,6 @@
 [submodule "cs16-client"]
 	path = cs16-client
 	url = git@github.com:yohimik/cs16-client.git
+[submodule "tf15-client"]
+	path = tf15-client
+	url = git@github.com:yohimik/tf15-client.git
