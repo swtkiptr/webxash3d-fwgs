@@ -72,9 +72,7 @@ Navigate in your browser to `http://localhost:8081`
 
 ### tf15-client
 
-```shell
-docker compose -f tf15-client.docker-compose.yml up -d
-```
+Cannot be supported at this moment (wait for `freevgui`).
 
 # TODO
 
