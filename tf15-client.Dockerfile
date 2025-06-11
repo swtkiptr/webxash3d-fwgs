@@ -1,3 +1,14 @@
+FROM emscripten/emsdk:4.0.9 AS hlsdk
+
+RUN dpkg --add-architecture i386
+RUN apt update && apt upgrade -y && apt -y --no-install-recommends install aptitude
+RUN aptitude -y --without-recommends install cmake build-essential gcc-multilib g++-multilib libsdl2-dev:i386
+
+WORKDIR /hlsdk-portable
+COPY hlsdk-portable .
+RUN emconfigure ./waf configure -T release && \
+    emmake ./waf
+
 FROM emscripten/emsdk:4.0.9 AS engine
 
 RUN dpkg --add-architecture i386
@@ -38,7 +49,8 @@ FROM nginx:alpine3.21 AS server
 
 COPY --from=tf /tf/build/3rdparty/mainui_cpp/menu.wasm /usr/share/nginx/html/menu
 COPY --from=tf /tf/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
-COPY --from=tf /tf/build/dlls/tfc.wasm /usr/share/nginx/html/server.wasm
+COPY --from=hlsdk /hlsdk-portable/build/dlls/hl_emscripten_javascript.so /usr/share/nginx/html/server.wasm
+COPY --from=engine /xash3d-fwgs/build/3rdparty/mainui/libmenu.so /usr/share/nginx/html/menu
 COPY --from=engine /xash3d-fwgs/build/engine/index.html /usr/share/nginx/html/index.html
 COPY --from=engine /xash3d-fwgs/build/engine/index.js /usr/share/nginx/html/index.js
 COPY --from=engine /xash3d-fwgs/build/engine/index.wasm /usr/share/nginx/html/index.wasm
