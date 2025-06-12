@@ -76,6 +76,10 @@ Cannot be supported at this moment (wait for `freevgui`).
 
 # TODO
 
+## Mobile devices
+
+Support mobile devices (currently crashes).
+
 ## RAM optimization
 
 Reduce current stack size to min.
