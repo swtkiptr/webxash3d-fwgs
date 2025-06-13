@@ -80,10 +80,6 @@ Cannot be supported at this moment (wait for `freevgui`).
 
 Support mobile devices (currently crashes).
 
-## RAM optimization
-
-Reduce current stack size to min.
-
 ## NPM
 
 Fix all issues above and publish `xash3d-fwgs` npm package.
