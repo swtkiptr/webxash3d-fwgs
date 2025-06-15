@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  webxash3d-all-in-one:
+    build:
+      context: .
+      dockerfile: all-in-one.Dockerfile
+    container_name: webxash3d-all-in-one
+    ports:
+      - "8080:8080"   # CS Client web interface
+      - "3000:3000"   # WebSocket proxy
+    environment:
+      # WebSocket proxy configuration
+      - WEBSOCKET_PORT=3000
+      - TARGET_HOST=host.docker.internal  # For connecting to host machine
+      - TARGET_PORT=27015
+      
+      # Nginx configuration
+      - NGINX_PORT=8080
+    restart: unless-stopped
+    networks:
+      - webxash3d-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080", "&&", "nc", "-z", "localhost", "3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    volumes:
+      # Optional: Mount game data if you have custom maps/mods
+      # - ./game-data:/game-data:ro
+
+networks:
+  webxash3d-network:
+    driver: bridge
