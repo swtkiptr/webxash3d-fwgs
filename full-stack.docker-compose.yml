@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  websocket-proxy:
+    build:
+      context: .
+      dockerfile: websocket-proxy.Dockerfile
+    container_name: webxash3d-websocket-proxy
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - webxash3d-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { hostname: 'localhost', port: 3000, path: '/health', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  cs16-client:
+    build:
+      context: .
+      dockerfile: cs16-client.Dockerfile
+    container_name: webxash3d-cs16-client
+    ports:
+      - "8080:80"
+    depends_on:
+      websocket-proxy:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - webxash3d-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  webxash3d-network:
+    driver: bridge

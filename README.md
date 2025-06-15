@@ -2,6 +2,13 @@
 
 This project is an [Emscripten](https://emscripten.org/)-based web port of [Xash3D-FWGS](https://github.com/FWGS/xash3d-fwgs), an open-source engine for games based on the GoldSource engine.
 
+## Features
+
+- **Web-based Counter-Strike 1.6 client** - Play CS 1.6 directly in your browser
+- **WebSocket to UDP proxy** - Connect to traditional game servers from web clients
+- **Full Emscripten compilation** - Native performance in the browser
+- **Docker deployment** - Easy setup and deployment
+
 # Compiling and running 
 
 ## Clone the repository
@@ -56,6 +63,38 @@ docker compose -f cs16-client.docker-compose.yml up -d
 ```
 
 Navigate in your browser to `http://localhost:8081`
+
+### Full Stack (CS Client + WebSocket Proxy)
+
+For the complete setup including WebSocket proxy support for multiplayer:
+
+```shell
+docker compose -f full-stack.docker-compose.yml up -d
+```
+
+This will start:
+- WebSocket to UDP proxy server on port 3000
+- CS 1.6 web client on port 8080
+
+Navigate to `http://localhost:8080` to play Counter-Strike 1.6 in your browser with full multiplayer support.
+
+## WebSocket Proxy
+
+The WebSocket proxy enables web-based CS clients to connect to traditional UDP game servers. See [WEBSOCKET_PROXY_README.md](./WEBSOCKET_PROXY_README.md) for detailed documentation.
+
+### Quick Start
+
+1. **Start the proxy server:**
+   ```bash
+   ./start-proxy.sh
+   ```
+
+2. **Or use Docker:**
+   ```bash
+   docker compose -f websocket-proxy.docker-compose.yml up -d
+   ```
+
+3. **Configure client** to point to your proxy server in `patches/head-cs.js`
 
 <details>
   <summary>Screenshots (black frames - mac book camera, blue frames - browser active outline)</summary>
