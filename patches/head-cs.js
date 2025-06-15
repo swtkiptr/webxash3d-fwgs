@@ -14,7 +14,19 @@ Module.ctx = document.getElementById('canvas').getContext('webgl2', {alpha:false
 
 // WebSocket proxy configuration
 Module.websocket = Module.websocket || {};
+
+// Proxy server options (uncomment the one you want to use):
+// Option 1: External server (default)
 Module.websocket.url = 'wsproxy://the-swank.pp.ua:3000/';
+
+// Option 2: Your own websockify-c server (lightweight C-based)
+// Module.websocket.url = 'wsproxy://localhost:3000/';
+
+// Option 3: Your own Node.js server (feature-rich)
+// Module.websocket.url = 'wsproxy://localhost:3000/';
+
+// Option 4: Custom server
+// Module.websocket.url = 'wsproxy://your-domain.com:3000/';
 
 // WebSocket proxy implementation
 Module.websocketProxyConnect = function(host, port) {

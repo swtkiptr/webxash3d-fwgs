@@ -7,3 +7,6 @@
 [submodule "cs16-client"]
 	path = cs16-client
 	url = https://github.com/yohimik/cs16-client.git
+[submodule "websockify-c"]
+	path = websockify-c
+	url = https://github.com/mittorn/websockify-c.git

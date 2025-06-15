@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  websockify-c:
+    build:
+      context: .
+      dockerfile: websockify-c.Dockerfile
+    container_name: websockify-c-proxy
+    ports:
+      - "3000:3000"
+    environment:
+      - TARGET_HOST=host.docker.internal
+      - TARGET_PORT=27015
+    restart: unless-stopped
+    command: ["./websockify", "-v", "3000", "host.docker.internal:27015"]
+    networks:
+      - webxash3d-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  webxash3d-network:
+    driver: bridge
