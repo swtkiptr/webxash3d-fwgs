@@ -2,23 +2,19 @@
 FROM emscripten/emsdk:4.0.9 as engine
 
 # Install dependencies for building
-RUN dpkg --add-architecture i386 && \
+RUN dpkg --add-architecture i386
+RUN mkdir -p /etc/apt/apt.conf.d/ && \
+    echo 'APT::Update::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' > /etc/apt/apt.conf.d/docker-clean && \
+    echo 'DPkg::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' >> /etc/apt/apt.conf.d/docker-clean && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-        gcc \
-        make \
-        git \
-        build-essential \
-        libc6-dev:i386 \
-        linux-libc-dev:i386 \
-        python3 \
-        python3-pip \
-        wget \
-        curl \
-        unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get -y --no-install-recommends install aptitude
+RUN aptitude -y --without-recommends install git ca-certificates build-essential gcc-multilib g++-multilib libsdl2-dev:i386 libfreetype-dev:i386 libopus-dev:i386 libbz2-dev:i386 libvorbis-dev:i386 libopusfile-dev:i386 libogg-dev:i386 nodejs npm
+
+# Set environment variables
+ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 
 # Set working directory
 WORKDIR /src
@@ -29,18 +25,31 @@ COPY . .
 # Initialize and update submodules (including websockify-c)
 RUN git submodule update --init --recursive
 
-# Build websockify-c proxy
-WORKDIR /src/websockify-c
-RUN make clean && make
-
-# Build the CS client engine
+# Install Node.js dependencies for WebSocket proxy
 WORKDIR /src
-RUN python3 waf configure -T release --enable-stb --disable-werror
-RUN python3 waf build
+RUN npm install ws dgram
+
+# Build the Xash3D engine
+WORKDIR /src/xash3d-fwgs
+ENV EMCC_CFLAGS="-s USE_SDL=2"
+RUN EMSCRIPTEN=true emconfigure ./waf configure --enable-stbtt --enable-emscripten && \
+    emmake ./waf build
+
+# Apply patches to engine
+WORKDIR /src
+RUN sed -e '/var Module = typeof Module != "undefined" ? Module : {};/{r patches/head-cs-allinone.js' -e 'd}' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e '/filename = PATH.normalize(filename);/{r patches/filename.js' -e 'd}' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e 's/run();//g' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e 's/readFile(path, opts = {}) {/readFile(path, opts = {}) {console.log({path});/g' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e '/preInit();/{r patches/init.js' -e 'd}' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e '/preInit();/{r patches/websocket-proxy.js' -e '}' -i xash3d-fwgs/build/engine/index.js
+RUN sed -e 's/async type="text\/javascript"/defer type="module"/' -i xash3d-fwgs/build/engine/index.html
 
 # Build the CS client
 WORKDIR /src/cs16-client
-RUN make
+ENV EMCC_CFLAGS="-s USE_SDL=2"
+RUN emcmake cmake -S . -B build && \
+    cmake --build build --config Release
 
 # Production stage with nginx
 FROM nginx:alpine3.21 as production
@@ -49,30 +58,28 @@ FROM nginx:alpine3.21 as production
 RUN apk add --no-cache \
     bash \
     netcat-openbsd \
-    procps
+    procps \
+    nodejs \
+    npm
 
-# Copy websockify-c binary
-COPY --from=engine /src/websockify-c/websockify /usr/local/bin/websockify
+# Copy Node.js WebSocket proxy
+COPY --from=engine /src/websocket-proxy-server.js /usr/local/bin/websocket-proxy-server.js
+COPY --from=engine /src/node_modules /usr/local/lib/node_modules
 
 # Copy built CS client files
-COPY --from=engine /src/cs16-client/*.wasm /usr/share/nginx/html/
-COPY --from=engine /src/cs16-client/*.js /usr/share/nginx/html/
-COPY --from=engine /src/cs16-client/*.data /usr/share/nginx/html/
+COPY --from=engine /src/cs16-client/build/3rdparty/mainui_cpp/menu_emscripten_javascript.wasm /usr/share/nginx/html/menu
+COPY --from=engine /src/cs16-client/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
+COPY --from=engine /src/cs16-client/build/3rdparty/ReGameDLL_CS/regamedll/cs_emscripten_javascript.wasm /usr/share/nginx/html/server.wasm
 
-# Copy web assets
-COPY --from=engine /src/cs16-client/*.html /usr/share/nginx/html/
-COPY --from=engine /src/cs16-client/*.css /usr/share/nginx/html/
+# Copy engine files
+COPY --from=engine /src/xash3d-fwgs/build/engine/index.html /usr/share/nginx/html/index.html
+COPY --from=engine /src/xash3d-fwgs/build/engine/index.js /usr/share/nginx/html/index.js
+COPY --from=engine /src/xash3d-fwgs/build/engine/index.wasm /usr/share/nginx/html/index.wasm
+COPY --from=engine /src/xash3d-fwgs/build/filesystem/filesystem_stdio.so /usr/share/nginx/html/filesystem_stdio
+COPY --from=engine /src/xash3d-fwgs/build/ref/gl/libref_gles3compat.so /usr/share/nginx/html/ref_gles3compat.so
+COPY --from=engine /src/xash3d-fwgs/build/ref/soft/libref_soft.so /usr/share/nginx/html/ref_soft.so
 
-# Copy patches and apply them
-COPY --from=engine /src/patches/ /tmp/patches/
-RUN if [ -f /tmp/patches/head-cs-allinone.js ]; then \
-        cp /tmp/patches/head-cs-allinone.js /usr/share/nginx/html/head-cs.js; \
-    elif [ -f /tmp/patches/head-cs.js ]; then \
-        cp /tmp/patches/head-cs.js /usr/share/nginx/html/; \
-    fi && \
-    if [ -f /tmp/patches/websocket-proxy.js ]; then \
-        cp /tmp/patches/websocket-proxy.js /usr/share/nginx/html/; \
-    fi
+# Patches are already applied during the build process
 
 # Create nginx configuration
 RUN cat > /etc/nginx/conf.d/default.conf << 'EOF'
@@ -141,23 +148,23 @@ echo ""
 echo "Note: WebSocket proxy will connect to target server when CS client connects"
 echo ""
 
-# Start websockify-c proxy in background
-echo "Starting websockify-c proxy..."
-echo "Command: websockify -v $WEBSOCKET_PORT $TARGET_HOST:$TARGET_PORT"
-websockify -v $WEBSOCKET_PORT $TARGET_HOST:$TARGET_PORT &
-WEBSOCKIFY_PID=$!
+# Start Node.js WebSocket proxy in background
+echo "Starting Node.js WebSocket proxy..."
+echo "Command: node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT"
+cd /usr/local/lib && node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT &
+WEBSOCKET_PID=$!
 
-# Wait a moment for websockify to start
+# Wait a moment for WebSocket proxy to start
 sleep 2
 
-# Check if websockify started successfully
-if ! kill -0 $WEBSOCKIFY_PID 2>/dev/null; then
-    echo "Warning: websockify may not have started properly"
-    echo "This is normal if target server is not available yet"
-    echo "websockify will attempt to connect when CS client connects"
+# Check if WebSocket proxy started successfully
+if ! kill -0 $WEBSOCKET_PID 2>/dev/null; then
+    echo "Warning: WebSocket proxy may not have started properly"
+    echo "Check logs for details"
+    exit 1
 fi
 
-echo "websockify-c proxy started (PID: $WEBSOCKIFY_PID)"
+echo "Node.js WebSocket proxy started (PID: $WEBSOCKET_PID)"
 echo ""
 echo "🎮 CS Client ready at: http://localhost:$NGINX_PORT"
 echo "🔌 WebSocket proxy ready at: ws://localhost:$WEBSOCKET_PORT"

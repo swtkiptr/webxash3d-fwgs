@@ -1,6 +1,6 @@
 # WebXash3D All-in-One Container
 
-🚀 **Single Docker container** that builds and runs both the CS client and websockify-c proxy together!
+🚀 **Single Docker container** that builds and runs both the CS client and WebSocket proxy together!
 
 ⚠️ **Note**: This container provides the **CS client + WebSocket proxy only**. You need to connect to an existing Counter-Strike server.
 
@@ -112,7 +112,7 @@ CLIENT_PORT=9090 WEBSOCKET_PORT=4000 ./build-and-run.sh
 │           Docker Container              │
 │                                         │
 │  ┌─────────────┐    ┌─────────────────┐ │
-│  │   Nginx     │    │  websockify-c   │ │
+│  │   Nginx     │    │   Node.js       │ │
 │  │   :8080     │    │     :3000       │ │
 │  │             │    │                 │ │
 │  │ CS Client   │    │ WebSocket Proxy │ │
@@ -129,10 +129,10 @@ CLIENT_PORT=9090 WEBSOCKET_PORT=4000 ./build-and-run.sh
 
 The all-in-one container performs these steps:
 
-1. **Build websockify-c**: Compiles the C-based WebSocket proxy
+1. **Install Dependencies**: Node.js and build tools
 2. **Build Xash3D Engine**: Compiles the game engine with Emscripten
 3. **Build CS Client**: Compiles Counter-Strike client for web
-4. **Configure Services**: Sets up nginx and websockify-c
+4. **Configure Services**: Sets up nginx and Node.js proxy
 5. **Apply Patches**: Configures WebSocket proxy integration
 
 ## Container Services
@@ -143,11 +143,11 @@ The all-in-one container performs these steps:
 - Serves WASM files with correct MIME types
 - Health check endpoint at `/health`
 
-### websockify-c Proxy (Port 3000)
-- Lightweight C-based WebSocket to UDP proxy
-- Automatically connects to configured game server
+### Node.js WebSocket Proxy (Port 3000)
+- Dynamic WebSocket to UDP proxy
+- Supports connecting to any game server
 - Handles bidirectional communication
-- Minimal memory footprint (1-2 MB)
+- Query parameter-based target selection
 
 ## Monitoring & Debugging
 

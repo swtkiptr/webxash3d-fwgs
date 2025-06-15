@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # WebXash3D All-in-One Build and Run Script
-# Builds CS client + websockify-c proxy in a single container
+# Builds CS client + WebSocket proxy in a single container
 
 set -e
 
