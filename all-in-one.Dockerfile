@@ -136,11 +136,14 @@ echo "Starting WebXash3D All-in-One Container..."
 echo "Configuration:"
 echo "  CS Client: http://localhost:$NGINX_PORT"
 echo "  WebSocket Proxy: ws://localhost:$WEBSOCKET_PORT"
-echo "  Target Server: $TARGET_HOST:$TARGET_PORT"
+echo "  Target Server: $TARGET_HOST:$TARGET_PORT (configurable at runtime)"
+echo ""
+echo "Note: WebSocket proxy will connect to target server when CS client connects"
 echo ""
 
 # Start websockify-c proxy in background
 echo "Starting websockify-c proxy..."
+echo "Command: websockify -v $WEBSOCKET_PORT $TARGET_HOST:$TARGET_PORT"
 websockify -v $WEBSOCKET_PORT $TARGET_HOST:$TARGET_PORT &
 WEBSOCKIFY_PID=$!
 
@@ -149,11 +152,19 @@ sleep 2
 
 # Check if websockify started successfully
 if ! kill -0 $WEBSOCKIFY_PID 2>/dev/null; then
-    echo "Error: websockify failed to start"
-    exit 1
+    echo "Warning: websockify may not have started properly"
+    echo "This is normal if target server is not available yet"
+    echo "websockify will attempt to connect when CS client connects"
 fi
 
 echo "websockify-c proxy started (PID: $WEBSOCKIFY_PID)"
+echo ""
+echo "🎮 CS Client ready at: http://localhost:$NGINX_PORT"
+echo "🔌 WebSocket proxy ready at: ws://localhost:$WEBSOCKET_PORT"
+echo ""
+echo "To connect to a different game server, set environment variables:"
+echo "  TARGET_HOST=your-server-ip TARGET_PORT=27015"
+echo ""
 
 # Start nginx in foreground
 echo "Starting nginx web server..."

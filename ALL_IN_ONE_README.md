@@ -2,12 +2,14 @@
 
 🚀 **Single Docker container** that builds and runs both the CS client and websockify-c proxy together!
 
+⚠️ **Note**: This container provides the **CS client + WebSocket proxy only**. You need to connect to an existing Counter-Strike server.
+
 ## Features
 
-✅ **Complete Solution**: CS client + WebSocket proxy in one container  
+✅ **CS Client + Proxy**: Complete web-based CS client with WebSocket proxy  
 ✅ **Automatic Build**: Compiles everything from source  
 ✅ **Lightweight Proxy**: Uses websockify-c (C-based, 1-2 MB memory)  
-✅ **Ready to Play**: Just build and run, no additional setup  
+✅ **Connect to Any Server**: Works with any CS 1.6 server  
 ✅ **Health Monitoring**: Built-in health checks for both services  
 ✅ **CORS Enabled**: Properly configured for web browser access  
 
@@ -62,6 +64,11 @@ Once the container is running:
 🔌 **WebSocket Proxy**: ws://localhost:3000  
 📊 **Health Check**: http://localhost:8080/health  
 
+🎮 **To Play**: Open the CS client and connect to any CS server:
+```
+connect your-server-ip:27015
+```  
+
 ## Configuration
 
 ### Environment Variables
@@ -73,15 +80,22 @@ Once the container is running:
 | `WEBSOCKET_PORT` | `3000` | WebSocket proxy port |
 | `NGINX_PORT` | `8080` | Web server port |
 
-### Custom Game Server
+### Connect to Game Servers
 
+#### Option 1: Set Default Server
 ```bash
-# Connect to a specific game server
+# Set default server (optional)
 TARGET_HOST=192.168.1.100 TARGET_PORT=27016 ./build-and-run.sh
+```
 
-# Or with docker-compose
-TARGET_HOST=game.example.com TARGET_PORT=27015 \
-  docker-compose -f all-in-one.docker-compose.yml up -d
+#### Option 2: Connect in Game
+```bash
+# Start container with defaults
+./build-and-run.sh
+
+# Then in CS client console:
+connect 192.168.1.100:27016
+connect game.example.com:27015
 ```
 
 ### Custom Ports

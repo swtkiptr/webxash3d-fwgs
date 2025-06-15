@@ -16,9 +16,12 @@ CLIENT_PORT=${CLIENT_PORT:-8080}
 WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}
 
 echo "Configuration:"
-echo "  Target Server: $TARGET_HOST:$TARGET_PORT"
 echo "  CS Client URL: http://localhost:$CLIENT_PORT"
 echo "  WebSocket Proxy: ws://localhost:$WEBSOCKET_PORT"
+echo "  Default Target: $TARGET_HOST:$TARGET_PORT (configurable)"
+echo ""
+echo "Note: This builds CS client + WebSocket proxy only."
+echo "      Target game server is configurable at runtime."
 echo ""
 
 # Check if Docker is running
@@ -68,7 +71,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "📋 Access Information:"
     echo "  🌐 CS Client: http://localhost:$CLIENT_PORT"
     echo "  🔌 WebSocket Proxy: ws://localhost:$WEBSOCKET_PORT"
-    echo "  🎯 Target Server: $TARGET_HOST:$TARGET_PORT"
+    echo "  🎯 Default Target: $TARGET_HOST:$TARGET_PORT (configurable)"
     echo ""
     echo "📊 Container Status:"
     docker-compose -f all-in-one.docker-compose.yml ps
@@ -108,8 +111,11 @@ fi
 
 echo ""
 echo "🔧 Advanced Usage:"
-echo "  Custom target server:"
+echo "  Connect to custom game server:"
 echo "    TARGET_HOST=192.168.1.100 TARGET_PORT=27016 $0"
 echo ""
-echo "  Custom ports:"
+echo "  Use custom ports:"
 echo "    CLIENT_PORT=9090 WEBSOCKET_PORT=4000 $0"
+echo ""
+echo "  Change target server after container is running:"
+echo "    docker-compose -f all-in-one.docker-compose.yml restart"

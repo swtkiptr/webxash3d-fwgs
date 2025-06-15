@@ -12,8 +12,8 @@ services:
     environment:
       # WebSocket proxy configuration
       - WEBSOCKET_PORT=3000
-      - TARGET_HOST=host.docker.internal  # For connecting to host machine
-      - TARGET_PORT=27015
+      - TARGET_HOST=127.0.0.1  # Default placeholder (user configurable)
+      - TARGET_PORT=27015      # Default placeholder (user configurable)
       
       # Nginx configuration
       - NGINX_PORT=8080
