@@ -26,7 +26,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    volumes:
+    volumes: []
       # Optional: Mount game data if you have custom maps/mods
       # - ./game-data:/game-data:ro
 
