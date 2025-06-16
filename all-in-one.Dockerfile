@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile that builds both CS client and websockify-c proxy
-FROM emscripten/emsdk:4.0.9 as engine
+FROM emscripten/emsdk:4.0.9 AS engine
 
 # Install dependencies for building
 RUN dpkg --add-architecture i386
@@ -52,7 +52,7 @@ RUN emcmake cmake -S . -B build && \
     cmake --build build --config Release
 
 # Production stage with nginx
-FROM nginx:alpine3.21 as production
+FROM nginx:alpine3.21 AS production
 
 # Install runtime dependencies
 RUN apk add --no-cache \
@@ -82,101 +82,97 @@ COPY --from=engine /src/xash3d-fwgs/build/ref/soft/libref_soft.so /usr/share/ngi
 # Patches are already applied during the build process
 
 # Create nginx configuration
-RUN cat > /etc/nginx/conf.d/default.conf << 'EOF'
-server {
-    listen 8080;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # Enable CORS for all origins
-    add_header Access-Control-Allow-Origin *;
-    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
-    add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";
-
-    # Handle preflight requests
-    location / {
-        if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin *;
-            add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
-            add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";
-            add_header Access-Control-Max-Age 1728000;
-            add_header Content-Type 'text/plain; charset=utf-8';
-            add_header Content-Length 0;
-            return 204;
-        }
-        try_files $uri $uri/ =404;
-    }
-
-    # Serve WASM files with correct MIME type
-    location ~* \.wasm$ {
-        add_header Content-Type application/wasm;
-        add_header Access-Control-Allow-Origin *;
-    }
-
-    # Serve JS files with correct MIME type
-    location ~* \.js$ {
-        add_header Content-Type application/javascript;
-        add_header Access-Control-Allow-Origin *;
-    }
-
-    # Health check endpoint
-    location /health {
-        access_log off;
-        return 200 "healthy\n";
-        add_header Content-Type text/plain;
-    }
-}
-EOF
+RUN echo 'server {\n\
+    listen 8080;\n\
+    server_name localhost;\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+\n\
+    # Enable CORS for all origins\n\
+    add_header Access-Control-Allow-Origin *;\n\
+    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";\n\
+    add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";\n\
+\n\
+    # Handle preflight requests\n\
+    location / {\n\
+        if ($request_method = '\''OPTIONS'\'') {\n\
+            add_header Access-Control-Allow-Origin *;\n\
+            add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";\n\
+            add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";\n\
+            add_header Access-Control-Max-Age 1728000;\n\
+            add_header Content-Type '\''text/plain; charset=utf-8'\'';\n\
+            add_header Content-Length 0;\n\
+            return 204;\n\
+        }\n\
+        try_files $uri $uri/ =404;\n\
+    }\n\
+\n\
+    # Serve WASM files with correct MIME type\n\
+    location ~* \.wasm$ {\n\
+        add_header Content-Type application/wasm;\n\
+        add_header Access-Control-Allow-Origin *;\n\
+    }\n\
+\n\
+    # Serve JS files with correct MIME type\n\
+    location ~* \.js$ {\n\
+        add_header Content-Type application/javascript;\n\
+        add_header Access-Control-Allow-Origin *;\n\
+    }\n\
+\n\
+    # Health check endpoint\n\
+    location /health {\n\
+        access_log off;\n\
+        return 200 "healthy\n";\n\
+        add_header Content-Type text/plain;\n\
+    }\n\
+}' > /etc/nginx/conf.d/default.conf
 
 # Create startup script that runs both nginx and websockify
-RUN cat > /start-services.sh << 'EOF'
-#!/bin/bash
-
-# Default configuration
-WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}
-TARGET_HOST=${TARGET_HOST:-127.0.0.1}
-TARGET_PORT=${TARGET_PORT:-27015}
-NGINX_PORT=${NGINX_PORT:-8080}
-
-echo "Starting WebXash3D All-in-One Container..."
-echo "Configuration:"
-echo "  CS Client: http://localhost:$NGINX_PORT"
-echo "  WebSocket Proxy: ws://localhost:$WEBSOCKET_PORT"
-echo "  Target Server: $TARGET_HOST:$TARGET_PORT (configurable at runtime)"
-echo ""
-echo "Note: WebSocket proxy will connect to target server when CS client connects"
-echo ""
-
-# Start Node.js WebSocket proxy in background
-echo "Starting Node.js WebSocket proxy..."
-echo "Command: node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT"
-cd /usr/local/lib && node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT &
-WEBSOCKET_PID=$!
-
-# Wait a moment for WebSocket proxy to start
-sleep 2
-
-# Check if WebSocket proxy started successfully
-if ! kill -0 $WEBSOCKET_PID 2>/dev/null; then
-    echo "Warning: WebSocket proxy may not have started properly"
-    echo "Check logs for details"
-    exit 1
-fi
-
-echo "Node.js WebSocket proxy started (PID: $WEBSOCKET_PID)"
-echo ""
-echo "🎮 CS Client ready at: http://localhost:$NGINX_PORT"
-echo "🔌 WebSocket proxy ready at: ws://localhost:$WEBSOCKET_PORT"
-echo ""
-echo "To connect to a different game server, set environment variables:"
-echo "  TARGET_HOST=your-server-ip TARGET_PORT=27015"
-echo ""
-
-# Start nginx in foreground
-echo "Starting nginx web server..."
-exec nginx -g 'daemon off;'
-EOF
+RUN printf '#!/bin/bash\n\
+\n\
+# Default configuration\n\
+WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}\n\
+TARGET_HOST=${TARGET_HOST:-127.0.0.1}\n\
+TARGET_PORT=${TARGET_PORT:-27015}\n\
+NGINX_PORT=${NGINX_PORT:-8080}\n\
+\n\
+echo "Starting WebXash3D All-in-One Container..."\n\
+echo "Configuration:"\n\
+echo "  CS Client: http://localhost:$NGINX_PORT"\n\
+echo "  WebSocket Proxy: ws://localhost:$WEBSOCKET_PORT"\n\
+echo "  Target Server: $TARGET_HOST:$TARGET_PORT (configurable at runtime)"\n\
+echo ""\n\
+echo "Note: WebSocket proxy will connect to target server when CS client connects"\n\
+echo ""\n\
+\n\
+# Start Node.js WebSocket proxy in background\n\
+echo "Starting Node.js WebSocket proxy..."\n\
+echo "Command: node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT"\n\
+cd /usr/local/lib && node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT &\n\
+WEBSOCKET_PID=$!\n\
+\n\
+# Wait a moment for WebSocket proxy to start\n\
+sleep 2\n\
+\n\
+# Check if WebSocket proxy started successfully\n\
+if ! kill -0 $WEBSOCKET_PID 2>/dev/null; then\n\
+    echo "Warning: WebSocket proxy may not have started properly"\n\
+    echo "Check logs for details"\n\
+    exit 1\n\
+fi\n\
+\n\
+echo "Node.js WebSocket proxy started (PID: $WEBSOCKET_PID)"\n\
+echo ""\n\
+echo "🎮 CS Client ready at: http://localhost:$NGINX_PORT"\n\
+echo "🔌 WebSocket proxy ready at: ws://localhost:$WEBSOCKET_PORT"\n\
+echo ""\n\
+echo "To connect to a different game server, set environment variables:"\n\
+echo "  TARGET_HOST=your-server-ip TARGET_PORT=27015"\n\
+echo ""\n\
+\n\
+# Start nginx in foreground\n\
+echo "Starting nginx web server..."\n\
+exec nginx -g '\''daemon off;'\''\n' > /start-services.sh
 
 # Make startup script executable
 RUN chmod +x /start-services.sh
