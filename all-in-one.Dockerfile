@@ -66,6 +66,9 @@ RUN apk add --no-cache \
 COPY --from=engine /src/websocket-proxy-server.js /usr/local/bin/websocket-proxy-server.js
 COPY --from=engine /src/node_modules /usr/local/lib/node_modules
 
+# Set NODE_PATH so Node.js can find modules
+ENV NODE_PATH=/usr/local/lib/node_modules
+
 # Copy built CS client files
 COPY --from=engine /src/cs16-client/build/3rdparty/mainui_cpp/menu_emscripten_javascript.wasm /usr/share/nginx/html/menu
 COPY --from=engine /src/cs16-client/build/cl_dll/client.wasm /usr/share/nginx/html/client.wasm
@@ -148,7 +151,7 @@ echo ""\n\
 # Start Node.js WebSocket proxy in background\n\
 echo "Starting Node.js WebSocket proxy..."\n\
 echo "Command: node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT"\n\
-cd /usr/local/lib && node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT &\n\
+node /usr/local/bin/websocket-proxy-server.js --port $WEBSOCKET_PORT &\n\
 WEBSOCKET_PID=$!\n\
 \n\
 # Wait a moment for WebSocket proxy to start\n\
